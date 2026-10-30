@@ -93,8 +93,13 @@ iOS 版额外做了系统分享面板：导出图片时可以直接保存到相�
 站点地址：
 
 ```text
-https://frigus27.github.io/tierlab/
+https://www.frigussum.com/tierlab/
 ```
+
+（`frigus27.github.io/tierlab/` 会重定向到上面的自定义域名地址。）
+
+> 第一次 push 时如果 Actions 报 `Get Pages site failed / Not Found`，说明 Pages 还没启用。
+> 完成第 3 步后，在 Actions 里点一次 **Re-run all jobs** 即可。
 
 注意：
 
