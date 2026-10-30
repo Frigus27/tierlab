@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f2eee5">
+  <meta name="description" content="TIERLAB — 一个轻巧、顺手的 Tier List 生成器。拖动卡片、自定义档位、导出高清图片。">
+  <title>TIERLAB · Tier List 生成器</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="TIERLAB">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#board">跳到榜单</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#" aria-label="TIERLAB 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span class="brand-word">TIER<span>LAB</span></span>
+      </a>
+      <span class="brand-tag">TIER LIST MAKER</span>
+
+      <nav class="topnav" aria-label="主导航">
+        <button type="button" class="nav-link" data-open-templates>模板</button>
+        <button type="button" class="nav-link" data-open-help>玩法</button>
+      </nav>
+
+      <div class="top-actions">
+        <span class="save-status" id="saveStatus" title="所有内容都保存在你的浏览器里">
+          <span class="status-dot"></span><span id="saveText">已保存</span>
+        </span>
+        <button type="button" class="icon-btn topbar-help" data-open-help aria-label="使用说明" title="使用说明">?</button>
+        <button type="button" class="btn btn-quiet new-btn" id="newBtn">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+          新建
+        </button>
+        <button type="button" class="btn btn-primary" id="openExportBtn">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 15v2h12v-2"/></svg>
+          导出图片
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="editor-head" aria-labelledby="boardTitle">
+      <div class="meta-line">
+        <span class="eyebrow"><span class="live-dot"></span> TIER LIST MAKER</span>
+        <span class="meta-sep">/</span>
+        <span class="meta-note">本地保存 · 无需登录</span>
+        <span class="meta-stamp" aria-hidden="true">EST. 2026</span>
+      </div>
+
+      <div class="title-line">
+        <div class="title-block">
+          <div class="title-editable">
+            <input id="boardTitle" class="board-title" type="text" maxlength="60"
+              autocomplete="off" spellcheck="false" aria-label="榜单标题" value="水果摊大赏">
+            <span class="title-pen" aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m4 14 .5-3.5L13 2l3 3-8.5 8.5L4 14Z"/><path d="m11.5 3.5 3 3"/></svg>
+            </span>
+          </div>
+          <p class="tagline">拖动卡片，给一切排个高低。<span>点击卡片，再点档位也能移动。</span></p>
+        </div>
+
+        <div class="toolbar" aria-label="榜单工具">
+          <div class="history-group" role="group" aria-label="撤销与重做">
+            <button type="button" class="icon-btn" id="undoBtn" title="撤销 (⌘Z)" aria-label="撤销" disabled>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 5 4 9l4 4"/><path d="M4 9h7a4 4 0 0 1 0 8H9"/></svg>
+            </button>
+            <span class="history-divider"></span>
+            <button type="button" class="icon-btn" id="redoBtn" title="重做 (⇧⌘Z)" aria-label="重做" disabled>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 5 4 4-4 4"/><path d="M16 9H9a4 4 0 0 0 0 8h2"/></svg>
+            </button>
+          </div>
+          <button type="button" class="tool-btn" id="addTierBtn">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            添加档位
+          </button>
+          <button type="button" class="tool-btn" id="openTemplatesBtn">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2 1.7 5.3L17 9l-5.3 1.7L10 16l-1.7-5.3L3 9l5.3-1.7L10 2Z"/></svg>
+            模板
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Tier 榜单编辑区">
+      <div class="board" id="board"></div>
+      <div class="board-bar">
+        <span><strong id="itemCount">0</strong> 张卡片</span>
+        <span class="bar-dot" aria-hidden="true">·</span>
+        <span class="bar-hint">拖动排序 · 双击编辑卡面 · <kbd>⌘</kbd><kbd>Z</kbd> 撤销</span>
+        <span class="bar-spacer"></span>
+        <span class="bar-brand">TIERLAB / NO.01</span>
+      </div>
+    </section>
+
+    <section class="pool-section" aria-labelledby="poolTitle">
+      <div class="pool-head">
+        <div class="pool-heading">
+          <span class="section-index">02</span>
+          <div>
+            <h2 id="poolTitle">待分类素材 <span class="count-pill" id="poolCount">0</span></h2>
+            <p>新卡片会先落在这里。拖进档位，或者点选卡片再点档位。</p>
+          </div>
+        </div>
+        <div class="pool-actions">
+          <button type="button" class="btn btn-outline" data-add-mode="upload">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V4m0 0L6 8m4-4 4 4M4 14v2h12v-2"/></svg>
+            上传
+          </button>
+          <button type="button" class="btn btn-outline btn-icon-label" data-add-mode="emoji">
+            <span aria-hidden="true" class="btn-emoji">☺</span> 表情
+          </button>
+          <button type="button" class="btn btn-outline btn-icon-label" data-add-mode="text">
+            <span aria-hidden="true" class="btn-aa">Aa</span> 文字
+          </button>
+          <button type="button" class="btn btn-dark" data-add-mode="url">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 12 12 8M6.5 9.5 4.8 11.2a2.5 2.5 0 0 0 3.5 3.5l1.7-1.7M13.5 10.5l1.7-1.7a2.5 2.5 0 0 0-3.5-3.5L10 7"/></svg>
+            图片链接
+          </button>
+        </div>
+      </div>
+
+      <div class="pool" id="pool" data-drop="bank">
+        <div class="pool-grid" id="poolGrid"></div>
+        <p class="pool-footnote" id="poolFootnote">支持 JPG / PNG / WebP / GIF，图片只在本地处理。</p>
+      </div>
+    </section>
+
+    <section class="tips-row" aria-label="使用小提示">
+      <article class="tip">
+        <span class="tip-num">01</span>
+        <div><h3>拖就完事</h3><p>按住任意卡片，拖进档位；拖回素材池就取消分类。</p></div>
+      </article>
+      <article class="tip">
+        <span class="tip-num">02</span>
+        <div><h3>改成你的样子</h3><p>标题直接改，点档位名字可换名、换色、增删档位。</p></div>
+      </article>
+      <article class="tip">
+        <span class="tip-num">03</span>
+        <div><h3>带走这张榜</h3><p>一键导出高清 PNG，发群、发朋友圈都清楚。</p></div>
+      </article>
+    </section>
+
+    <footer class="page-footer">
+      <div class="footer-brand">
+        <span class="brand-mark small" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>TIERLAB</span>
+      </div>
+      <p>给一切排个高低。数据保存在本机浏览器，不会上传。</p>
+      <span class="footer-year">© 2026</span>
+    </footer>
+  </main>
+
+  <div class="selection-bar" id="selectionBar" hidden>
+    <span class="selection-check" aria-hidden="true">
+      <svg viewBox="0 0 20 20"><path d="m5 10 3.2 3.2L15 6.5"/></svg>
+    </span>
+    <div class="selection-copy">
+      <small>已选中</small>
+      <strong id="selectionName">卡片</strong>
+    </div>
+    <span class="selection-tip">点任意档位放入</span>
+    <button type="button" class="btn btn-small btn-quiet" id="selectionEdit">编辑</button>
+    <button type="button" class="icon-btn selection-close" id="selectionCancel" aria-label="取消选中">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+    </button>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <div class="file-overlay" id="fileOverlay" hidden aria-hidden="true">
+    <div class="file-overlay-card">
+      <span class="upload-glyph">
+        <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 17v3h14v-3"/></svg>
+      </span>
+      <strong>松开鼠标，导入图片</strong>
+      <span>图片只会在本地处理</span>
+    </div>
+  </div>
+
+  <!-- 添加素材 -->
+  <dialog class="modal modal-add" id="addDialog" aria-labelledby="addTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">ADD TO THE LIST</span>
+        <h2 id="addTitle">添加素材</h2>
+        <p>图片、表情或一句话，都能变成一张卡。</p>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="addDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+
+    <div class="tabbar" role="tablist" aria-label="素材类型">
+      <button type="button" class="tab is-active" role="tab" aria-selected="true" data-add-tab="upload">上传图片</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-add-tab="emoji">表情</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-add-tab="text">文字</button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-add-tab="url">图片链接</button>
+    </div>
+
+    <div class="tab-panel is-active" data-add-panel="upload" role="tabpanel">
+      <label class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" multiple hidden>
+        <span class="upload-glyph">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 17v3h14v-3"/></svg>
+        </span>
+        <strong>点击选择，或把图片拖进来</strong>
+        <span class="upload-sub">可以一次选多张 · 最长边自动压到 900px</span>
+        <span class="upload-fake-btn">选择图片</span>
+      </label>
+      <p class="field-note">图片在浏览器本地压缩，不会上传到服务器。透明背景会保留。</p>
+
+      <div class="paste-row">
+        <span class="paste-glyph" aria-hidden="true">
+          <svg viewBox="0 0 20 20"><rect x="6" y="3" width="8" height="3" rx="1"/><path d="M7 5H5.5A1.5 1.5 0 0 0 4 6.5v10A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 14.5 5H13"/></svg>
+        </span>
+        <div class="paste-copy">
+          <strong>剪贴板里已经有图？</strong>
+          <span>复制图片后直接按 ⌘V / Ctrl+V，或点右侧按钮。</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-small" id="pasteImageBtn">粘贴图片</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-add-panel="emoji" role="tabpanel">
+      <p class="panel-intro">点一下就能加入素材池，可以连续点很多个。</p>
+      <div class="emoji-grid" id="emojiGrid"></div>
+      <div class="emoji-custom">
+        <input type="text" id="customEmoji" maxlength="8" placeholder="自定义表情" aria-label="自定义表情">
+        <input type="text" id="customEmojiName" maxlength="20" placeholder="名称（可选）" aria-label="表情名称">
+        <button type="button" class="btn btn-small btn-dark" id="addCustomEmoji">加入</button>
+      </div>
+      <div class="panel-footer">
+        <span id="emojiAddedNote">点击表情即可添加</span>
+        <button type="button" class="btn btn-primary btn-small" data-close="addDialog">完成</button>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-add-panel="text" role="tabpanel">
+      <div class="text-panel-layout">
+        <div class="text-form">
+          <label class="field">
+            <span>卡片文字</span>
+            <textarea id="textContent" maxlength="36" rows="3" placeholder="例如：周一早八"></textarea>
+          </label>
+          <fieldset class="field color-field">
+            <legend>卡片底色</legend>
+            <div class="color-grid" id="textColorGrid"></div>
+          </fieldset>
+          <button type="button" class="btn btn-primary" id="addTextBtn">添加文字卡片</button>
+        </div>
+        <div class="text-preview-wrap">
+          <span class="preview-label">PREVIEW</span>
+          <div class="text-preview" id="textPreview">周一早八</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-add-panel="url" role="tabpanel">
+      <label class="field">
+        <span>图片地址</span>
+        <input type="url" id="imageUrl" placeholder="https://example.com/image.png" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="field">
+        <span>卡片名称 <em>可选</em></span>
+        <input type="text" id="imageUrlName" maxlength="30" placeholder="给这张图起个名字">
+      </label>
+      <p class="field-note">部分网站会限制跨域读取。这种情况下图片可以显示，但导出时可能只能看到占位图。</p>
+      <button type="button" class="btn btn-primary" id="addUrlBtn">添加图片</button>
+    </div>
+  </dialog>
+
+  <!-- 编辑档位 -->
+  <dialog class="modal modal-small" id="tierDialog" aria-labelledby="tierDialogTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">EDIT TIER</span>
+        <h2 id="tierDialogTitle">编辑档位</h2>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="tierDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+
+    <div class="tier-edit-preview" id="tierPreview">
+      <span id="tierPreviewLetter">S</span>
+    </div>
+
+    <label class="field">
+      <span>档位名称</span>
+      <input type="text" id="tierNameInput" maxlength="8" placeholder="例如 S、神级">
+    </label>
+
+    <fieldset class="field color-field">
+      <legend>档位颜色</legend>
+      <div class="color-grid color-grid-tier" id="tierColorGrid"></div>
+    </fieldset>
+
+    <div class="tier-order-actions">
+      <button type="button" class="btn btn-outline btn-small" id="moveTierUp">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 16V5m0 0L5 10m5-5 5 5"/></svg>
+        上移
+      </button>
+      <button type="button" class="btn btn-outline btn-small" id="moveTierDown">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v11m0 0 5-5m-5 5-5-5"/></svg>
+        下移
+      </button>
+      <button type="button" class="btn btn-danger-quiet btn-small" id="deleteTierBtn">删除档位</button>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-primary" data-close="tierDialog">完成</button>
+    </div>
+  </dialog>
+
+  <!-- 模板 -->
+  <dialog class="modal modal-wide" id="templatesDialog" aria-labelledby="templatesTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">START WITH A SPARK</span>
+        <h2 id="templatesTitle">挑一个模板开始</h2>
+        <p>套用后会替换当前内容，但你可以随时撤销。</p>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="templatesDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+    <div class="template-grid" id="templateGrid"></div>
+  </dialog>
+
+  <!-- 导出 -->
+  <dialog class="modal modal-export" id="exportDialog" aria-labelledby="exportTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">SHARE THE VERDICT</span>
+        <h2 id="exportTitle">导出你的 Tier List</h2>
+        <p>一张高清 PNG，适合发到任何地方。</p>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="exportDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+
+    <div class="export-stage" id="exportStage">
+      <div class="export-loading">
+        <span class="spinner" aria-hidden="true"></span>
+        <span>正在渲染榜单…</span>
+      </div>
+    </div>
+    <div class="export-meta-row">
+      <div class="export-file-meta">
+        <span class="file-chip">PNG</span>
+        <span id="exportSize">计算中…</span>
+        <span class="export-dot">·</span>
+        <span>2× 高清</span>
+      </div>
+      <span class="export-watermark-note">自动带上 TIERLAB 页脚</span>
+    </div>
+    <p class="notice" id="exportNotice" hidden></p>
+
+    <div class="modal-actions split">
+      <button type="button" class="btn btn-outline" id="copyImageBtn">复制图片</button>
+      <button type="button" class="btn btn-primary" id="downloadImageBtn">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4L6 9M4 15v2h12v-2"/></svg>
+        下载 PNG
+      </button>
+    </div>
+  </dialog>
+
+  <!-- 编辑卡片 -->
+  <dialog class="modal modal-small" id="itemDialog" aria-labelledby="itemDialogTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">EDIT CARD</span>
+        <h2 id="itemDialogTitle">编辑卡片</h2>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="itemDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+    <div class="item-edit-preview" id="itemEditPreview"></div>
+    <label class="field">
+      <span>卡片名称</span>
+      <input type="text" id="itemNameInput" maxlength="30" placeholder="留空则不显示名称">
+    </label>
+    <p class="field-note">不想只是改名字？把卡片拖到素材池，就可以换到别的位置。</p>
+    <div class="modal-actions split">
+      <button type="button" class="btn btn-danger-quiet" id="itemRemoveBtn">从榜单移除</button>
+      <button type="button" class="btn btn-primary" id="itemSaveBtn">保存</button>
+    </div>
+  </dialog>
+
+  <!-- 玩法 -->
+  <dialog class="modal modal-help" id="helpDialog" aria-labelledby="helpTitle">
+    <div class="modal-head">
+      <div>
+        <span class="modal-kicker">HOW IT WORKS</span>
+        <h2 id="helpTitle">三步做一张好榜</h2>
+        <p>不需要登录，不需要学习。所有内容自动保存在本机。</p>
+      </div>
+      <button type="button" class="icon-btn modal-close" data-close="helpDialog" aria-label="关闭">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"/></svg>
+      </button>
+    </div>
+
+    <div class="help-steps">
+      <article class="help-step">
+        <span class="help-step-num">01</span>
+        <div>
+          <h3>把素材放进来</h3>
+          <p>上传图片、直接粘贴剪贴板截图、粘贴图片链接、用表情，或者打几个字做成文字卡。</p>
+        </div>
+      </article>
+      <article class="help-step">
+        <span class="help-step-num">02</span>
+        <div>
+          <h3>拖进你的档位</h3>
+          <p>鼠标或手指按住卡片就能拖。手机上也可以先点卡片，再点档位。档位名和颜色都能改。</p>
+        </div>
+      </article>
+      <article class="help-step">
+        <span class="help-step-num">03</span>
+        <div>
+          <h3>导出与分享</h3>
+          <p>点右上角「导出图片」下载高清 PNG。想换个主题？打开模板，一键换一套内容。</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="shortcuts">
+      <h3>小键盘</h3>
+      <div class="shortcut-list">
+        <span><kbd>⌘</kbd><kbd>Z</kbd> 撤销</span>
+        <span><kbd>⇧</kbd><kbd>⌘</kbd><kbd>Z</kbd> 重做</span>
+        <span><kbd>Esc</kbd> 取消选中</span>
+        <span><kbd>⌘</kbd><kbd>V</kbd> 粘贴图片</span>
+        <span><kbd>⌫</kbd> 移除选中卡片</span>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

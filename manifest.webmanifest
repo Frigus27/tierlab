@@ -1,0 +1,16 @@
+{
+  "name": "TIERLAB · Tier List 生成器",
+  "short_name": "TIERLAB",
+  "description": "一个轻巧、顺手的 Tier List 生成器。拖动卡片、自定义档位、导出高清图片。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2eee5",
+  "theme_color": "#f2eee5",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
